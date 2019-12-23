@@ -52,15 +52,113 @@ I am Apache!
 
 ### Example using Kubernetes cluster
 
-TODO - show k8s configs.
+Two-tier application - backend deployment and service:
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  selector:
+    matchLabels:
+      tier: backend
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        tier: backend
+    spec:
+      containers:
+      - name: backend
+        image: httphops:1.0
+        ports:
+        - containerPort: 8000
+EOF
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+  selector:
+    tier: backend
+  type: ClusterIP
+EOF
+```
+
+Frontend:
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      tier: frontend
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: httphops:1.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ADDR_REQUEST
+          value: 10.104.254.140
+        - name: PORT_REQUEST
+          value: "8000"
+EOF
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  annotations:
+    "opencontrail.org/fip-pool": "{'domain': 'default-domain', 'project': 'k8s-default', 'network': 'PUBLIC', 'name': 'PUBLIC-FIP-POOL'}"
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+  selector:
+    tier: frontend
+  type: LoadBalancer
+EOF
+```
+
+Example response from HTTP request to public External VIP:
+```
+HTTPHops server: Hostname=frontend-6d4c4c9bdd-ddgc2, Server IP=10.47.255.250, Client IP=172.16.0.100 <br>
+Response from the next tier: <br>
+HTTPHops server: Hostname=backend-7b5595bd79-957zq, Server IP=10.47.255.247, Client IP=10.47.255.250 <br>
+<br>
+```
 
 
 ### Building and running container
 
 To build container (from project dir):
 ```shell script
-sudo docker build -t pklimai/httphops:latest .
+sudo docker build -t httphops:1.0 .
 ```
+
+To save image to file / load from file:
+```shell script
+sudo docker save -o httphops.tar httphops:1.0
+sudo docker load -i httphops.tar 
+```
+
 
 ##### Other useful Docker commands
 ```shell script
