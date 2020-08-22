@@ -29,7 +29,7 @@ Just pass proper environment variables to tell HTTPHops where to connect to.
 These variables are: 
 - ADDR_LISTEN (default is 0.0.0.0, i.e. all available addresses) - IP address to listen to incoming HTTP requests;  
 - PORT_LISTEN (default is 8000) - HTTP port to listen to;
-- ADDR_REQUEST (default is None, i.e. do not request anything) - IP address to send HTTP request to;
+- ADDR_REQUEST (default is None, i.e. do not request anything) - IP address or DNS name (such as k8s service name) to send HTTP request to;
 - PORT_REQUEST (default is 80) - port to send the request.
 
 
@@ -115,7 +115,7 @@ spec:
         - containerPort: 8000
         env:
         - name: ADDR_REQUEST
-          value: 10.104.254.140
+          value: backend
         - name: PORT_REQUEST
           value: "8000"
 EOF
