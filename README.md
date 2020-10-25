@@ -27,13 +27,28 @@ With HTTPHops, you can gain this visibility in your test setup using a single co
 Just pass proper environment variables to tell HTTPHops where to connect to.
 
 These variables are: 
-- ADDR_LISTEN (default is 0.0.0.0, i.e. all available addresses) - IP address to listen to incoming HTTP requests;  
-- PORT_LISTEN (default is 8000) - HTTP port to listen to;
-- ADDR_REQUEST (default is None, i.e. do not request anything) - IP address or DNS name (such as k8s service name) to send HTTP request to;
-- PORT_REQUEST (default is 80) - port to send the request.
+- `ADDR_LISTEN` (default is 0.0.0.0, i.e. all available addresses) - IP address to listen to incoming HTTP requests;  
+- `PORT_LISTEN` (default is 8000) - HTTP port to listen to;
+- `ADDR_REQUEST` (default is None, i.e. do not request anything) - IP address or DNS name (such as k8s service name) to send HTTP request to;
+- `PORT_REQUEST` (default is 80) - port to send the request.
 
 
-### Example run using plain Docker 
+### Running plain Python (no containers)
+
+Use the following commands (e.g. add to `/etc/rc.local`):
+
+```
+# Modify and uncomment the requied variables
+#export ADDR_LISTEN=0.0.0.0
+#export PORT_LISTEN=8000
+#export ADDR_REQUEST=1.1.1.1
+#export PORT_REQUEST=80
+
+# Start HTTPHops server
+nohup python3 /home/user/httphops.py &
+```
+
+### Example run with Docker 
 
 In this example we chain 2 httphops + Apache Web server:
 ```shell script
